@@ -39,6 +39,8 @@ public:
 	typedef std::vector<std::complex<float> > complexVector;
 
 	firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput);
+	template<typename T>
+	firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput, T& taps);
 	virtual ~firfilter();
 
 	void setTaps(RealFFTWVector& taps);

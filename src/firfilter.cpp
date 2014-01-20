@@ -35,6 +35,23 @@ firfilter::firfilter(size_t fftSize, realVector& realInput, complexVector& compl
 	setTaps(tmp);
 }
 
+template<typename T>
+firfilter::firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput, T& taps) :
+    realInput_(realInput),
+    complexInput_(complexInput),
+	realOutput_(realOutput),
+	complexOutput_(complexOutput),
+	realInputFft_(realInputFftIn_,freqDomainData_, fftSize,false),
+	complexInputFft_(complexInputFftIn_,freqDomainData_, fftSize,false),
+	realOutputFft_(realOutputFftOut_, freqDomainData_, fftSize, false),
+	complexOutputFft_(complexOutputFftOut_, freqDomainData_, fftSize, false),
+	realFramer_(1,0),
+	complexFramer_(1,0),
+	fftSize_(fftSize)
+{
+	setTaps(taps);
+}
+
 firfilter::~firfilter() {
 	// TODO Auto-generated destructor stub
 }
@@ -273,3 +290,6 @@ void firfilter::doRealIfft(realVector::iterator& realOut, complexVector::iterato
 	//finally assign the new overlap for next time
 	realOverlap_.assign(newOutput,realOutputFftOut_.end());
 }
+
+template firfilter::firfilter(size_t, realVector&, complexVector&, realVector&, complexVector&, RealFFTWVector&);
+template firfilter::firfilter(size_t, realVector&, complexVector&, realVector&, complexVector&, ComplexFFTWVector&);

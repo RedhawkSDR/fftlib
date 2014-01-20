@@ -140,7 +140,9 @@ size_t Fft<ComplexFFTWVector>::getFreqPoints()
 template<typename TimeType>
 FwdFft<TimeType>::FwdFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex) :
 	Fft<TimeType>::Fft(time, frequency, length, wrapComplex)
-{}
+{
+	this->createPlan();
+}
 
 //this is the external interface to run
 template<typename TimeType>
@@ -198,7 +200,9 @@ void FwdFft<ComplexFFTWVector>::planCmd()
 template<typename TimeType>
 RevFft<TimeType>::RevFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex) :
 	Fft<TimeType>::Fft(time, frequency, length, wrapComplex)
-{}
+{
+	this->createPlan();
+}
 
 //external run method
 template<typename TimeType>
