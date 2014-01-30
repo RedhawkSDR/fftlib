@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/Autocorrelate.cpp \
 ../src/fft.cpp \
 ../src/firfilter.cpp 
 
 OBJS += \
+./src/Autocorrelate.o \
 ./src/fft.o \
 ./src/firfilter.o 
 
 CPP_DEPS += \
+./src/Autocorrelate.d \
 ./src/fft.d \
 ./src/firfilter.d 
 

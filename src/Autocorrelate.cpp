@@ -1,13 +1,13 @@
 /*
- * Autocorolate.cpp
+ * Autocorrelate.cpp
  *
  *  Created on: Jan 29, 2014
  *      Author: bsg
  */
-#include "Autocorolate.h"
+#include "Autocorrelate.h"
 #include "zeromean.h"
 
-void Autocorolator::run(RealVector& realInput)
+void Autocorrelator::run(RealVector& realInput)
 {
 	realOutput_.clear();
 	realFramer_.newData(realInput,realFrames_);
@@ -16,11 +16,11 @@ void Autocorolator::run(RealVector& realInput)
 		maxOutputFrames =(realFrames_.size() - vecMean_.getAvgNum() -1)/vecMean_.getAvgNum()+1;
 	else
 		maxOutputFrames=1;
-	size_t outFrameSize =2*corelationSize_-1;
+	size_t outFrameSize =2*correlationSize_-1;
 	if (outputType_==SUPERIMPOSED)
-		outFrameSize=corelationSize_;
+		outFrameSize=correlationSize_;
 	realOutput_.reserve(maxOutputFrames*outFrameSize);
-	autocorolationRotated_.resize(outFrameSize);
+	autocorrelationRotated_.resize(outFrameSize);
 
 	//scale the gain by 1 over the fftSize since the fftw introduces the gain
 	float scale = 1.0/fftSize_;
@@ -44,31 +44,31 @@ void Autocorolator::run(RealVector& realInput)
 		realOutputFft_.run();
 
 		//set up our output
-		//if we are rotating it means the user wants to display the autocorolation in the
+		//if we are rotating it means the user wants to display the autocorrelation in the
 		//non-standard way
 		//where the 0 offset bin chorosponds to 0 instead of the center
 
 		//do first section of output data
 		RealVector::iterator out;
 //		if (rotate_)
-//			out=autocorolationRotated_.end()-corelationSize_+1;
+//			out=autocorrelationRotated_.end()-correlationSize_+1;
 //		else
-//			out=autocorolationRotated_.begin();
+//			out=autocorrelationRotated_.begin();
 //		std::cout<<"outputType_ = "<<outputType_<<std::endl;
-//		std::cout<<"Autocorolator::SUPERIMPOSED = "<<Autocorolator::SUPERIMPOSED<<std::endl;
-		if (outputType_==Autocorolator::ROTATED || outputType_==Autocorolator::STANDARD)
+//		std::cout<<"Autocorrelator::SUPERIMPOSED = "<<Autocorrelator::SUPERIMPOSED<<std::endl;
+		if (outputType_==Autocorrelator::ROTATED || outputType_==Autocorrelator::STANDARD)
 		{
 			if (outputType_==ROTATED)
-				out=autocorolationRotated_.end()-corelationSize_+1;
+				out=autocorrelationRotated_.end()-correlationSize_+1;
 			else
-				out=autocorolationRotated_.begin();
+				out=autocorrelationRotated_.begin();
 
-			for(RealFFTWVector::iterator in = autocorolationOutput_.end()-corelationSize_+1; in != autocorolationOutput_.end(); in++, out++)
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.end()-correlationSize_+1; in != autocorrelationOutput_.end(); in++, out++)
 			{
 				*out = (*in)*scale;
 			}
-			if (outputType_==Autocorolator::ROTATED)
-				out = autocorolationRotated_.begin();
+			if (outputType_==Autocorrelator::ROTATED)
+				out = autocorrelationRotated_.begin();
 			size_t startIndex=0;
 			if (zeroCenter_)
 			{
@@ -76,7 +76,7 @@ void Autocorolator::run(RealVector& realInput)
 				*out=0;
 				out++;
 			}
-			for(RealFFTWVector::iterator in = autocorolationOutput_.begin()+startIndex; in != autocorolationOutput_.begin()+corelationSize_; in++, out++)
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
 			{
 				*out = (*in)*scale;
 			}
@@ -84,19 +84,19 @@ void Autocorolator::run(RealVector& realInput)
 		}
 		else
 		{
-			out =autocorolationRotated_.end()-1;
-			for(RealFFTWVector::iterator in = autocorolationOutput_.end()-corelationSize_+1; in != autocorolationOutput_.end(); in++, out--)
+			out =autocorrelationRotated_.end()-1;
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.end()-correlationSize_+1; in != autocorrelationOutput_.end(); in++, out--)
 			{
 				*out = (*in)*scale;
 			}
 			if (zeroCenter_)
 			{
-				autocorolationRotated_[0]=0;
+				autocorrelationRotated_[0]=0;
 			}
 			else
-				autocorolationRotated_[0]=autocorolationOutput_[0];
-			out = autocorolationRotated_.begin()+1;
-			for(RealFFTWVector::iterator in = autocorolationOutput_.begin()+1; in != autocorolationOutput_.begin()+corelationSize_; in++, out++)
+				autocorrelationRotated_[0]=autocorrelationOutput_[0];
+			out = autocorrelationRotated_.begin()+1;
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+1; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
 			{
 				*out += (*in)*scale;
 			}
@@ -107,29 +107,29 @@ void Autocorolator::run(RealVector& realInput)
 		{
 			if (vecMean_.run())
 			{
-				appendOutput(autocorolationAverage_);
+				appendOutput(autocorrelationAverage_);
 			}
 		}
 		else
 		{
-			appendOutput(autocorolationRotated_);
+			appendOutput(autocorrelationRotated_);
 		}
 	}
 }
 
-void Autocorolator::setCorelationSize(size_t size)
+void Autocorrelator::setCorrelationSize(size_t size)
 {
-	if (size !=corelationSize_)
+	if (size !=correlationSize_)
 	{
-		corelationSize_ = size;
+		correlationSize_ = size;
 		fftSize_ = getFftSize();
 		realInputFft_.setLength(fftSize_);
 		realOutputFft_.setLength(fftSize_);
-		realFramer_.setFrameSize(corelationSize_);
+		realFramer_.setFrameSize(correlationSize_);
 	}
 }
 
-void Autocorolator::setOverlap(long overlap)
+void Autocorrelator::setOverlap(long overlap)
 {
 	if (overlap !=realFramer_.getOverlap())
 	{
@@ -137,12 +137,12 @@ void Autocorolator::setOverlap(long overlap)
 	}
 }
 
-void Autocorolator::setNumAverages(size_t numAverages)
+void Autocorrelator::setNumAverages(size_t numAverages)
 {
 	vecMean_.setAvgNum(numAverages);
 }
 
-void Autocorolator::setOutputType(OUTPUT_TYPE outType)
+void Autocorrelator::setOutputType(OUTPUT_TYPE outType)
 {
 	if (outType != outputType_)
 	{
@@ -151,7 +151,7 @@ void Autocorolator::setOutputType(OUTPUT_TYPE outType)
 	}
 }
 
-void Autocorolator::setZeroMean(bool zeroMean)
+void Autocorrelator::setZeroMean(bool zeroMean)
 {
 	if (zeroMean_ != zeroMean)
 	{
@@ -161,7 +161,7 @@ void Autocorolator::setZeroMean(bool zeroMean)
 }
 
 
-void Autocorolator::setZeroCenter(bool zeroCenter)
+void Autocorrelator::setZeroCenter(bool zeroCenter)
 {
 	if (zeroCenter_ != zeroCenter)
 	{
@@ -171,19 +171,19 @@ void Autocorolator::setZeroCenter(bool zeroCenter)
 }
 
 template<typename T>
-void Autocorolator::appendOutput(T& inVec)
+void Autocorrelator::appendOutput(T& inVec)
 {
 	for (typename T::iterator i = inVec.begin(); i!=inVec.end(); i++)
-	//for (typename T::iterator i = inVec.begin(); i!=inVec.begin()+2*corelationSize_-1; i++)
+	//for (typename T::iterator i = inVec.begin(); i!=inVec.begin()+2*correlationSize_-1; i++)
 	{
 		realOutput_.push_back(*i);
 	}
 }
 
-size_t Autocorolator::getFftSize()
+size_t Autocorrelator::getFftSize()
 {
 	size_t out=2;
-	size_t minFftSize = 2*corelationSize_-1;
+	size_t minFftSize = 2*correlationSize_-1;
 	while (minFftSize>=out)
 		out*=2;
 	return out;
