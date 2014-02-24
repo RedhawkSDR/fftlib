@@ -47,6 +47,7 @@ public:
 	void setTaps(ComplexFFTWVector& taps);
 
 	void setFftSize(size_t val);
+	size_t getMaxTaps();
 
 	void newRealData();
 	void newComplexData();

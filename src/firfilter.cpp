@@ -111,8 +111,29 @@ void firfilter::setFftSize(size_t val)
     updateInternals();
 }
 
+size_t firfilter::getMaxTaps()
+{
+	// given our current fft size - what is the max taps we can support?
+	//
+	// Here are the two constraint equations we need to satisfy:
+	//
+	// frameSize_ = fftSize_-numTaps_+1; // convolution constraint equation - technically this is <= but we always choose = for efficiency
+	// frameSize_ >= numTaps_-1 ;        // this is a constraint on the overlap -- we need the frameSize >= overlap (which happens to be numTaps_-1
+	//                                   // techincally this is not strictly necessary for overlap-add
+	//									 // but if this isn't met you have to add multiple ifft frames of data for each input frame
+	//                                   // this would add significant complexity plus - you loose efficiency for large tap sizes compared to fftSize anyway
+	// (substitute the equations yields the following constraint)
+	// fftSize_-numTaps_+1 >= numTaps_-1
+	// 2*(numTaps-1)<=fftSize_
+	// do the integer division trick to efficiently take the ceil and you end up with the following equation
+
+	return (fftSize_+1)/2+1;
+}
+
 void firfilter::updateInternals()
 {
+	size_t maxTapsAllowed = getMaxTaps();
+	assert(maxTapsAllowed>=numTaps_);
 	tapsFreq_.clear();
 	if (!realTaps_.empty())
 	{
@@ -145,7 +166,7 @@ void firfilter::updateInternals()
 	//large as possbible
 
 	frameSize_ = fftSize_-numTaps_+1;
-	assert(frameSize_> 0);
+
 	if (frameSize_ < fftSize_/8.0)
 		std::cout<<"WARNING firfilter::frameSize_ "<<frameSize_<<" is small -- you might consider increasing your filter size or increase your fftSize."<<std::endl;
 	if (numTaps_ < fftSize_/8.0)
