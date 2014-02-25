@@ -94,7 +94,9 @@ void Autocorrelator::run(RealVector& realInput)
 				autocorrelationRotated_[0]=0;
 			}
 			else
-				autocorrelationRotated_[0]=autocorrelationOutput_[0];
+			{
+				autocorrelationRotated_[0]=autocorrelationOutput_[0]*scale;
+			}
 			out = autocorrelationRotated_.begin()+1;
 			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+1; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
 			{
