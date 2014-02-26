@@ -35,72 +35,68 @@ void Autocorrelator::run(RealVector& realInput)
 		}
 		else
 			framedTimeDomain_.assign(frame->begin, frame->end);
-		//take the fft
+		// take the fft
 		realInputFft_.run();
-		//take the absolute value of the fft output
+		// take the norm of the fft output
 		for (ComplexFFTWVector::iterator i= fftData_.begin(); i != fftData_.end(); i++)
 			*i= std::norm(*i);
-		//take the ifft
+		// take the ifft
 		realOutputFft_.run();
 
-		//set up our output
-		//if we are rotating it means the user wants to display the autocorrelation in the
-		//non-standard way
-		//where the 0 offset bin chorosponds to 0 instead of the center
+		// set up our output
 
-		//do first section of output data
+		// the algorthim introduces a phase shift which rotates the output data compared to the standard correlation output type
+		// furthermore - if the fftSize > 2*correlationSize-1 we introduce zeros at the center of the inverse fft output
+		// sepcifically -- the first "correlationSize_" points and the last "correlationSize_-1" points are valid
+		// and the rest of the points (in the middle) are the zero padded data
+
+		// this is "opposite" how we want the data for standard but in the correct orientation for SUPERIMPOSED or ROTATED outptu types
+
+		// we solve this problem by doing two different loops to arrange the data
+		// the output iterators change positino depending on which output mode we are in
+		// but we always do the first part of the inverse ifft data first and the 2nd part of the ifft data second
+
 		RealVector::iterator out;
-//		if (rotate_)
-//			out=autocorrelationRotated_.end()-correlationSize_+1;
-//		else
-//			out=autocorrelationRotated_.begin();
-//		std::cout<<"outputType_ = "<<outputType_<<std::endl;
-//		std::cout<<"Autocorrelator::SUPERIMPOSED = "<<Autocorrelator::SUPERIMPOSED<<std::endl;
-		if (outputType_==Autocorrelator::ROTATED || outputType_==Autocorrelator::STANDARD)
-		{
-			if (outputType_==ROTATED)
-				out=autocorrelationRotated_.end()-correlationSize_+1;
-			else
-				out=autocorrelationRotated_.begin();
-
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.end()-correlationSize_+1; in != autocorrelationOutput_.end(); in++, out++)
-			{
-				*out = (*in)*scale;
-			}
-			if (outputType_==Autocorrelator::ROTATED)
-				out = autocorrelationRotated_.begin();
-			size_t startIndex=0;
-			if (zeroCenter_)
-			{
-				startIndex=1;
-				*out=0;
-				out++;
-			}
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
-			{
-				*out = (*in)*scale;
-			}
-
-		}
+		if (outputType_==Autocorrelator::ROTATED || outputType_== Autocorrelator::SUPERIMPOSED)
+			out=autocorrelationRotated_.begin();
 		else
+			out=autocorrelationRotated_.begin()+correlationSize_-1;
+
+		size_t startIndex=0;
+		//if zeroCenter has been requested - then grant the request here and upadte the iterators to start on the 2nd element
+		if (zeroCenter_)
 		{
-			out =autocorrelationRotated_.end()-1;
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.end()-correlationSize_+1; in != autocorrelationOutput_.end(); in++, out--)
+			startIndex=1;
+			*out=0;
+			out++;
+		}
+		//copy & scale the data
+		for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
+		{
+			*out = (*in)*scale;
+		}
+		// adjust the start Index to grab the last correlationSize_-1 points from the inverse fft data in the 2nd loop
+		// the "center" spike is not included since it was included in the first loop
+		startIndex=fftSize_-(correlationSize_-1);
+		//now do the other section.  We do different things pending wich mode we are in
+		if (outputType_==Autocorrelator::ROTATED || outputType_ == Autocorrelator::STANDARD)
+		{
+			//if we are in standard mode we must reset the output iterator to the right place
+			if (outputType_==Autocorrelator::STANDARD)
+				out = autocorrelationRotated_.begin();
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, out++)
 			{
 				*out = (*in)*scale;
 			}
-			if (zeroCenter_)
+		}
+		else //SUPERIMPOSED
+		{
+			//use a reverse output iterator for the output so that the data is done in the opposite direction
+			RealVector::reverse_iterator rout = autocorrelationRotated_.rbegin();
+			//do the loop but add the data to that which we previously copied for the SUPERIMPOSED output
+			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, rout++)
 			{
-				autocorrelationRotated_[0]=0;
-			}
-			else
-			{
-				autocorrelationRotated_[0]=autocorrelationOutput_[0]*scale;
-			}
-			out = autocorrelationRotated_.begin()+1;
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+1; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
-			{
-				*out += (*in)*scale;
+				*rout += (*in)*scale;
 			}
 		}
 
@@ -176,7 +172,6 @@ template<typename T>
 void Autocorrelator::appendOutput(T& inVec)
 {
 	for (typename T::iterator i = inVec.begin(); i!=inVec.end(); i++)
-	//for (typename T::iterator i = inVec.begin(); i!=inVec.begin()+2*correlationSize_-1; i++)
 	{
 		realOutput_.push_back(*i);
 	}
