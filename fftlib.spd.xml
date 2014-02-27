@@ -22,6 +22,7 @@ program.  If not, see http://www.gnu.org/licenses/.
   <author>
     <name>null</name>
   </author>
+  <description>basic-components signal processing library wrapping fftw.  This provides a higher level functionality then that contained in fftw by providing classes for taking ffts and their inverses and signal processing classes which leverages these fft capabilities.</description>
   <implementation id="firstImplementation">
     <description>The implementation contains descriptive information about the template for a software component.</description>
     <code type="SharedLibrary">
