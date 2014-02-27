@@ -51,6 +51,7 @@ public:
 
 	void newRealData();
 	void newComplexData();
+	void flush();
 
 private:
 

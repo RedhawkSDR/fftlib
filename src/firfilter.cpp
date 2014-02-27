@@ -247,6 +247,14 @@ void firfilter::newComplexData()
 
 }
 
+void firfilter::flush()
+{
+	realFramer_.flush();
+	complexFramer_.flush();
+	realOverlap_.clear();
+	complexOverlap_.clear();
+}
+
 void firfilter::applyFilter()
 {
 	ComplexFFTWVector::iterator j = tapsFreq_.begin();
