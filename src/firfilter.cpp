@@ -121,11 +121,11 @@ size_t firfilter::getMaxTaps()
 	// frameSize_ >= numTaps_-1 ;        // this is a constraint on the overlap -- we need the frameSize >= overlap (which happens to be numTaps_-1
 	//                                   // techincally this is not strictly necessary for overlap-add
 	//									 // but if this isn't met you have to add multiple ifft frames of data for each input frame
-	//                                   // this would add significant complexity plus - you loose efficiency for large tap sizes compared to fftSize anyway
+	//                                   // this would add significant complexity plus you lose efficiency for large tap sizes compared to fftSize anyway
 	// (substitute the equations yields the following constraint)
 	// fftSize_-numTaps_+1 >= numTaps_-1
 	// 2*(numTaps-1)<=fftSize_
-	// do the integer division trick to efficiently take the ceil and you end up with the following equation
+	// do the integer division trick to efficiently take the ceiling and you end up with the following equation
 
 	return (fftSize_+1)/2+1;
 }

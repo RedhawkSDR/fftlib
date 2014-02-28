@@ -45,15 +45,13 @@ void Autocorrelator::run(RealVector& realInput)
 
 		// set up our output
 
-		// the algorthim introduces a phase shift which rotates the output data compared to the standard correlation output type
-		// furthermore - if the fftSize > 2*correlationSize-1 we introduce zeros at the center of the inverse fft output
-		// sepcifically -- the first "correlationSize_" points and the last "correlationSize_-1" points are valid
-		// and the rest of the points (in the middle) are the zero padded data
-
-		// this is "opposite" how we want the data for standard but in the correct orientation for SUPERIMPOSED or ROTATED outptu types
-
-		// we solve this problem by doing two different loops to arrange the data
-		// the output iterators change positino depending on which output mode we are in
+		// The algorithm introduces a phase shift which rotates the output data compared to the standard correlation output type.
+		// If the fftSize > 2*correlationSize-1 we introduce zeros at the center of the inverse fft output.
+		// Specifically, the first "correlationSize_" points and the last "correlationSize_-1" points are valid
+		// and the rest of the points (in the middle) are the zero-padded data.
+		// This is "opposite" how we want the data for standard but in the correct orientation for SUPERIMPOSED or ROTATED output types.
+		// We solve this problem by doing two different loops to arrange the data.
+		// The output iterators change position depending on which output mode we are in,
 		// but we always do the first part of the inverse ifft data first and the 2nd part of the ifft data second
 
 		RealVector::iterator out;
@@ -75,10 +73,10 @@ void Autocorrelator::run(RealVector& realInput)
 		{
 			*out = (*in)*scale;
 		}
-		// adjust the start Index to grab the last correlationSize_-1 points from the inverse fft data in the 2nd loop
+		// adjust the startIndex to grab the last correlationSize_-1 points from the inverse fft data in the 2nd loop
 		// the "center" spike is not included since it was included in the first loop
 		startIndex=fftSize_-(correlationSize_-1);
-		//now do the other section.  We do different things pending wich mode we are in
+		//now do the other section.  We do different things depending on which mode we are in
 		if (outputType_==Autocorrelator::ROTATED || outputType_ == Autocorrelator::STANDARD)
 		{
 			//if we are in standard mode we must reset the output iterator to the right place
