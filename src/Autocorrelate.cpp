@@ -1,9 +1,21 @@
 /*
- * Autocorrelate.cpp
+ * This file is protected by Copyright. Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
  *
- *  Created on: Jan 29, 2014
- *      Author: bsg
+ * This file is part of REDHAWK Basic Components fftlib library.
+ *
+ * REDHAWK Basic Components fftlib library is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * REDHAWK Basic Components fftlib library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program.  If not, see http://www.gnu.org/licenses/.
  */
+
 #include "Autocorrelate.h"
 #include "zeromean.h"
 
@@ -113,6 +125,12 @@ void Autocorrelator::run(RealVector& realInput)
 	}
 }
 
+void Autocorrelator::flush()
+{
+	vecMean_.clear();
+
+}
+
 void Autocorrelator::setCorrelationSize(size_t size)
 {
 	if (size !=correlationSize_)
@@ -136,6 +154,7 @@ void Autocorrelator::setOverlap(long overlap)
 void Autocorrelator::setNumAverages(size_t numAverages)
 {
 	vecMean_.setAvgNum(numAverages);
+	realFramer_.flush();
 }
 
 void Autocorrelator::setOutputType(OUTPUT_TYPE outType)
