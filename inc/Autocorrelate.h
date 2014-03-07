@@ -1,8 +1,19 @@
 /*
- * autocorrelate.h
+ * This file is protected by Copyright. Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
  *
- *  Created on: Jan 29, 2014
- *      Author: bsg
+ * This file is part of REDHAWK Basic Components fftlib library.
+ *
+ * REDHAWK Basic Components fftlib library is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * REDHAWK Basic Components fftlib library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifndef AUTOCORRELATE_H_
@@ -36,6 +47,7 @@ public:
 	}
 
 	void run(RealVector& realInput);
+	void flush();
 	void setCorrelationSize(size_t size);
 	void setOverlap(long overlap);
 	void setNumAverages(size_t numAverages);
