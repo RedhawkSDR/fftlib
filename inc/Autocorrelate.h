@@ -24,13 +24,24 @@
 #include "vectormean.h"
 #include "DataTypes.h"
 
+namespace autocorrelator_output
+{
+	enum type {STANDARD, ROTATED, SUPERIMPOSED};
+};
+
+template<typename T>
 class Autocorrelator
 {
 public:
 
-	enum OUTPUT_TYPE {STANDARD, ROTATED, SUPERIMPOSED};
+	typedef typename std::vector<T> VectorT;
+	typedef typename std::vector<T, fftwf_allocator<T> > FFTWVectorT;
+	typedef typename VectorT::iterator IterT;
+	typedef typename VectorT::reverse_iterator ReverseIterT;
+	typedef typename FFTWVectorT::iterator FFTWIterT;
+	typedef typename framebuffer<IterT>::frame FrameIterT;
 
-	Autocorrelator(RealVector& realOutput, size_t correlationSize, long overlap, size_t numAverages, OUTPUT_TYPE outType, bool zeroMean=true, bool zeroCenter=false) :
+	Autocorrelator(VectorT& realOutput, size_t correlationSize, long overlap, size_t numAverages, autocorrelator_output::type outType, bool zeroMean=true, bool zeroCenter=false) :
 		correlationSize_(correlationSize),
 		fftSize_(getFftSize()),
 		outputType_(outType),
@@ -46,39 +57,39 @@ public:
 		//framedTimeDomain_.resize(fftSize_,0.0);
 	}
 
-	void run(RealVector& realInput);
+	void run(VectorT& realInput);
 	void flush();
 	void setCorrelationSize(size_t size);
 	void setOverlap(long overlap);
 	void setNumAverages(size_t numAverages);
-	void setOutputType(OUTPUT_TYPE outType);
+	void setOutputType(autocorrelator_output::type outType);
 	void setZeroMean(bool zeroMean);
 	void setZeroCenter(bool zeroCenter);
 
 private:
-	template<typename T>
-	void appendOutput(T& inVec);
+	template<typename U>
+	void appendOutput(U& inVec);
 	size_t getFftSize();
 
 	size_t correlationSize_;
 	size_t fftSize_;
-	OUTPUT_TYPE outputType_;
+	autocorrelator_output::type outputType_;
 	bool zeroMean_;
 	bool zeroCenter_;
 
-	RealVector& realOutput_;
-	RealFFTWVector framedTimeDomain_;
+	VectorT& realOutput_;
+	FFTWVectorT framedTimeDomain_;
 	ComplexFFTWVector fftData_;
-	RealFFTWVector autocorrelationOutput_;
-	RealVector autocorrelationRotated_;
-	RealVector autocorrelationAverage_;
-	std::vector<framebuffer<RealVector::iterator>::frame> realFrames_;
+	FFTWVectorT autocorrelationOutput_;
+	VectorT autocorrelationRotated_;
+	VectorT autocorrelationAverage_;
+	std::vector<FrameIterT> realFrames_;
 
 	//foward fft
-	RealFwdFft realInputFft_;
-	RealRevFft realOutputFft_;
-	framebuffer<RealVector::iterator> realFramer_;
-	VectorExponentialAvg<float> vecMean_;
+	FwdFft<FFTWVectorT> realInputFft_;
+	RevFft<FFTWVectorT> realOutputFft_;
+	framebuffer<IterT> realFramer_;
+	VectorExponentialAvg<T> vecMean_;
 
 };
 

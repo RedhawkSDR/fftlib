@@ -19,7 +19,8 @@
 #include "Autocorrelate.h"
 #include "zeromean.h"
 
-void Autocorrelator::run(RealVector& realInput)
+template <typename T>
+void Autocorrelator<T>::run(VectorT& realInput)
 {
 	realOutput_.clear();
 	realFramer_.newData(realInput,realFrames_);
@@ -29,14 +30,15 @@ void Autocorrelator::run(RealVector& realInput)
 	else
 		maxOutputFrames=1;
 	size_t outFrameSize =2*correlationSize_-1;
-	if (outputType_==SUPERIMPOSED)
+	if (outputType_==autocorrelator_output::SUPERIMPOSED)
 		outFrameSize=correlationSize_;
 	realOutput_.reserve(maxOutputFrames*outFrameSize);
 	autocorrelationRotated_.resize(outFrameSize);
 
 	//scale the gain by 1 over the fftSize since the fftw introduces the gain
 	float scale = 1.0/fftSize_;
-	for (std::vector<framebuffer<RealVector::iterator>::frame>::iterator frame = realFrames_.begin(); frame !=realFrames_.end(); frame++)
+
+	for (typename std::vector<FrameIterT>::iterator frame = realFrames_.begin(); frame !=realFrames_.end(); frame++)
 	{
 		// Taking zero meam in time domain to avoid spectral leakage issues
 		// Where large d.c. values blead in and effect bins close to d.c
@@ -66,8 +68,8 @@ void Autocorrelator::run(RealVector& realInput)
 		// The output iterators change position depending on which output mode we are in,
 		// but we always do the first part of the inverse ifft data first and the 2nd part of the ifft data second
 
-		RealVector::iterator out;
-		if (outputType_==Autocorrelator::ROTATED || outputType_== Autocorrelator::SUPERIMPOSED)
+		IterT out;
+		if (outputType_==autocorrelator_output::ROTATED || outputType_== autocorrelator_output::SUPERIMPOSED)
 			out=autocorrelationRotated_.begin();
 		else
 			out=autocorrelationRotated_.begin()+correlationSize_-1;
@@ -81,7 +83,7 @@ void Autocorrelator::run(RealVector& realInput)
 			out++;
 		}
 		//copy & scale the data
-		for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
+		for(FFTWIterT in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.begin()+correlationSize_; in++, out++)
 		{
 			*out = (*in)*scale;
 		}
@@ -89,12 +91,12 @@ void Autocorrelator::run(RealVector& realInput)
 		// the "center" spike is not included since it was included in the first loop
 		startIndex=fftSize_-(correlationSize_-1);
 		//now do the other section.  We do different things depending on which mode we are in
-		if (outputType_==Autocorrelator::ROTATED || outputType_ == Autocorrelator::STANDARD)
+		if (outputType_==autocorrelator_output::ROTATED || outputType_ == autocorrelator_output::STANDARD)
 		{
 			//if we are in standard mode we must reset the output iterator to the right place
-			if (outputType_==Autocorrelator::STANDARD)
+			if (outputType_==autocorrelator_output::STANDARD)
 				out = autocorrelationRotated_.begin();
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, out++)
+			for(FFTWIterT in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, out++)
 			{
 				*out = (*in)*scale;
 			}
@@ -102,9 +104,9 @@ void Autocorrelator::run(RealVector& realInput)
 		else //SUPERIMPOSED
 		{
 			//use a reverse output iterator for the output so that the data is done in the opposite direction
-			RealVector::reverse_iterator rout = autocorrelationRotated_.rbegin();
+			ReverseIterT rout = autocorrelationRotated_.rbegin();
 			//do the loop but add the data to that which we previously copied for the SUPERIMPOSED output
-			for(RealFFTWVector::iterator in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, rout++)
+			for(FFTWIterT in = autocorrelationOutput_.begin()+startIndex; in != autocorrelationOutput_.end(); in++, rout++)
 			{
 				*rout += (*in)*scale;
 			}
@@ -124,14 +126,15 @@ void Autocorrelator::run(RealVector& realInput)
 		}
 	}
 }
-
-void Autocorrelator::flush()
+template <typename T>
+void Autocorrelator<T>::flush()
 {
 	vecMean_.clear();
-
+	realFramer_.flush();
 }
 
-void Autocorrelator::setCorrelationSize(size_t size)
+template <typename T>
+void Autocorrelator<T>::setCorrelationSize(size_t size)
 {
 	if (size !=correlationSize_)
 	{
@@ -143,7 +146,8 @@ void Autocorrelator::setCorrelationSize(size_t size)
 	}
 }
 
-void Autocorrelator::setOverlap(long overlap)
+template <typename T>
+void Autocorrelator<T>::setOverlap(long overlap)
 {
 	if (overlap !=realFramer_.getOverlap())
 	{
@@ -151,13 +155,15 @@ void Autocorrelator::setOverlap(long overlap)
 	}
 }
 
-void Autocorrelator::setNumAverages(size_t numAverages)
+template <typename T>
+void Autocorrelator<T>::setNumAverages(size_t numAverages)
 {
 	vecMean_.setAvgNum(numAverages);
 	realFramer_.flush();
 }
 
-void Autocorrelator::setOutputType(OUTPUT_TYPE outType)
+template <typename T>
+void Autocorrelator<T>::setOutputType(autocorrelator_output::type outType)
 {
 	if (outType != outputType_)
 	{
@@ -166,7 +172,8 @@ void Autocorrelator::setOutputType(OUTPUT_TYPE outType)
 	}
 }
 
-void Autocorrelator::setZeroMean(bool zeroMean)
+template <typename T>
+void Autocorrelator<T>::setZeroMean(bool zeroMean)
 {
 	if (zeroMean_ != zeroMean)
 	{
@@ -175,8 +182,8 @@ void Autocorrelator::setZeroMean(bool zeroMean)
 	}
 }
 
-
-void Autocorrelator::setZeroCenter(bool zeroCenter)
+template <typename T>
+void Autocorrelator<T>::setZeroCenter(bool zeroCenter)
 {
 	if (zeroCenter_ != zeroCenter)
 	{
@@ -185,17 +192,20 @@ void Autocorrelator::setZeroCenter(bool zeroCenter)
 	}
 }
 
-template<typename T>
-void Autocorrelator::appendOutput(T& inVec)
+template <typename T>
+template <typename U>
+void Autocorrelator<T>::appendOutput(U& inVec)
 {
-	for (typename T::iterator i = inVec.begin(); i!=inVec.end(); i++)
+	for (typename U::iterator i = inVec.begin(); i!=inVec.end(); i++)
 	{
 		realOutput_.push_back(*i);
 	}
 }
 
-size_t Autocorrelator::getFftSize()
+template <typename T>
+size_t Autocorrelator<T>::getFftSize()
 {
+	assert(correlationSize_>0);
 	size_t out=2;
 	size_t minFftSize = 2*correlationSize_-1;
 	while (minFftSize>=out)
@@ -203,4 +213,6 @@ size_t Autocorrelator::getFftSize()
 	return out;
 }
 
+template class Autocorrelator<float>;
+template class Autocorrelator<std::complex<float> >;
 
