@@ -29,7 +29,9 @@ void printVec(T vec)
 	for (unsigned int i=0; i!=vec.size(); i++)
 		std::cout<<vec[i]<<",";
 	std::cout<<std::endl;
-}
+};
+
+size_t getMaxTapsSize(size_t fftSize);
 
 class firfilter {
 	//This fir filter implementation uses the
@@ -38,9 +40,9 @@ public:
 	typedef std::vector<float> realVector;
 	typedef std::vector<std::complex<float> > complexVector;
 
-	firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput);
+	firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput);
 	template<typename T>
-	firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput, T& taps);
+	firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput, T& taps);
 	virtual ~firfilter();
 
 	void setTaps(RealFFTWVector& taps);
@@ -48,9 +50,10 @@ public:
 
 	void setFftSize(size_t val);
 	size_t getMaxTaps();
+	size_t getNumTaps();
 
-	void newRealData();
-	void newComplexData();
+	void newRealData(realVector& realInput);
+	void newComplexData(complexVector& complexInput);
 	void flush();
 
 private:
@@ -62,8 +65,6 @@ private:
 	void updateInternals();
 
 	//inputs and outputs for the class
-	realVector& realInput_;
-	complexVector& complexInput_;
 	realVector& realOutput_;
 	complexVector& complexOutput_;
 
