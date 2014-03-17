@@ -18,9 +18,26 @@
 
 #include "firfilter.h"
 
-firfilter::firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput) :
-    realInput_(realInput),
-    complexInput_(complexInput),
+size_t getMaxTapsSize(size_t fftSize)
+{
+	// given our current fft size - what is the max taps we can support?
+	//
+	// Here are the two constraint equations we need to satisfy:
+	//
+	// frameSize_ = fftSize_-numTaps_+1; // convolution constraint equation - technically this is <= but we always choose = for efficiency
+	// frameSize_ >= numTaps_-1 ;        // this is a constraint on the overlap -- we need the frameSize >= overlap (which happens to be numTaps_-1
+	//                                   // techincally this is not strictly necessary for overlap-add
+	//									 // but if this isn't met you have to add multiple ifft frames of data for each input frame
+	//                                   // this would add significant complexity plus you lose efficiency for large tap sizes compared to fftSize anyway
+	// (substitute the equations yields the following constraint)
+	// fftSize_-numTaps_+1 >= numTaps_-1
+	// 2*(numTaps-1)<=fftSize_
+	// do the integer division trick to efficiently take the ceiling and you end up with the following equation
+
+	return (fftSize+1)/2+1;
+}
+
+firfilter::firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput) :
 	realOutput_(realOutput),
 	complexOutput_(complexOutput),
 	realInputFft_(realInputFftIn_,freqDomainData_, fftSize,false),
@@ -36,9 +53,7 @@ firfilter::firfilter(size_t fftSize, realVector& realInput, complexVector& compl
 }
 
 template<typename T>
-firfilter::firfilter(size_t fftSize, realVector& realInput, complexVector& complexInput, realVector& realOutput, complexVector& complexOutput, T& taps) :
-    realInput_(realInput),
-    complexInput_(complexInput),
+firfilter::firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput, T& taps) :
 	realOutput_(realOutput),
 	complexOutput_(complexOutput),
 	realInputFft_(realInputFftIn_,freqDomainData_, fftSize,false),
@@ -113,21 +128,12 @@ void firfilter::setFftSize(size_t val)
 
 size_t firfilter::getMaxTaps()
 {
-	// given our current fft size - what is the max taps we can support?
-	//
-	// Here are the two constraint equations we need to satisfy:
-	//
-	// frameSize_ = fftSize_-numTaps_+1; // convolution constraint equation - technically this is <= but we always choose = for efficiency
-	// frameSize_ >= numTaps_-1 ;        // this is a constraint on the overlap -- we need the frameSize >= overlap (which happens to be numTaps_-1
-	//                                   // techincally this is not strictly necessary for overlap-add
-	//									 // but if this isn't met you have to add multiple ifft frames of data for each input frame
-	//                                   // this would add significant complexity plus you lose efficiency for large tap sizes compared to fftSize anyway
-	// (substitute the equations yields the following constraint)
-	// fftSize_-numTaps_+1 >= numTaps_-1
-	// 2*(numTaps-1)<=fftSize_
-	// do the integer division trick to efficiently take the ceiling and you end up with the following equation
+	return getMaxTapsSize(fftSize_);
+}
 
-	return (fftSize_+1)/2+1;
+size_t firfilter::getNumTaps()
+{
+	return std::max(realTaps_.size(), complexTaps_.size());
 }
 
 void firfilter::updateInternals()
@@ -175,12 +181,12 @@ void firfilter::updateInternals()
 	complexFramer_.setFrameSize(frameSize_);
 }
 
-void firfilter::newRealData()
+void firfilter::newRealData(realVector& realInput)
 {
 	boost::mutex::scoped_lock lock(boostLock_);
 
 	//frame up the input data and run on each frame
-	realFramer_.newData(realInput_,realFrames_);
+	realFramer_.newData(realInput,realFrames_);
 	//if we have complex taps the output will be complex even though the input is real
 	if (realTaps_.empty())
 	{
@@ -227,10 +233,10 @@ void firfilter::newRealData()
 	assert(complexOut==complexOutput_.end());
 
 }
-void firfilter::newComplexData()
+void firfilter::newComplexData(complexVector& complexInput)
 {
 	boost::mutex::scoped_lock lock(boostLock_);
-	complexFramer_.newData(complexInput_,complexFrames_);
+	complexFramer_.newData(complexInput,complexFrames_);
 	complexOutput_.resize(complexFrames_.size()*frameSize_);
 	realOutput_.clear();
 	complexVector::iterator out = complexOutput_.begin();
@@ -320,5 +326,5 @@ void firfilter::doRealIfft(realVector::iterator& realOut, complexVector::iterato
 	realOverlap_.assign(newOutput,realOutputFftOut_.end());
 }
 
-template firfilter::firfilter(size_t, realVector&, complexVector&, realVector&, complexVector&, RealFFTWVector&);
-template firfilter::firfilter(size_t, realVector&, complexVector&, realVector&, complexVector&, ComplexFFTWVector&);
+template firfilter::firfilter(size_t, realVector&, complexVector&, RealFFTWVector&);
+template firfilter::firfilter(size_t, realVector&, complexVector&, ComplexFFTWVector&);
