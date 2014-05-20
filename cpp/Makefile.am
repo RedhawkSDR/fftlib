@@ -1,7 +1,6 @@
 lib_LTLIBRARIES = lib@PACKAGE_NAME@.la
+lib@PACKAGE_NAME@_la_CXXFLAGS = -Wall -I$(top_srcdir)/inc $(PROJECTDEPS_CFLAGS) $(BOOST_CPPFLAGS)
 lib@PACKAGE_NAME@_la_LDFLAGS = $(PROJECTDEPS_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
-
-AM_CXXFLAGS = -Wall -I$(top_srcdir)/inc $(PROJECTDEPS_CFLAGS) $(BOOST_CPPFLAGS)
 
 libdir = $(spkg_lib_dir)
 fftlib_src = \
@@ -19,7 +18,7 @@ inc/firfilter.h
 dist_inc_DATA = $(fftlib_inc)
 
 xmldir = $(spkg_dir)
-dist_xml_DATA = @PACKAGE_NAME@.spd.xml
+dist_xml_DATA = ../@PACKAGE_NAME@.spd.xml
 
 pkgconfigdir = $(spkg_pkgconfig_dir)
 dist_pkgconfig_DATA = @PACKAGE_NAME@.pc

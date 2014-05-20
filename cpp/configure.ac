@@ -39,6 +39,6 @@ AC_SUBST([dsp_pkgconfig_dir],       [${spkg_base_dir}/dsp/cpp/lib/pkgconfig])
 export PKG_CONFIG_PATH=${dsp_pkgconfig_dir}:$PKG_CONFIG_PATH
 PKG_CHECK_MODULES([PROJECTDEPS],   [fftw3 >= 3.0 fftw3f >= 3.0 dsp >= 1.0.0])
 
-AC_CONFIG_FILES([Makefile ${PACKAGE_NAME}.pc:fftlib.pc.in ${PACKAGE_NAME}.spd.xml:../fftlib.spd.xml.in])
+AC_CONFIG_FILES([Makefile ${PACKAGE_NAME}.pc:fftlib.pc.in ../${PACKAGE_NAME}.spd.xml:../fftlib.spd.xml.in])
 AC_OUTPUT
 
