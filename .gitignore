@@ -1,1 +1,3 @@
-*/src/*.d
+src/.dirstamp
+.libs/
+fftlib.pc
