@@ -21,7 +21,7 @@
 
 Name:           fftlib
 Version:        1.0.0
-Release:        2%{?dist}
+Release:        9%{?dist}
 Summary:        Component Library %{name}
 
 Group:          REDHAWK/Components
@@ -32,6 +32,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  autoconf automake libtool
 BuildRequires:  dsp-devel >= 1.0.0
 BuildRequires:  fftw-devel >= 3
+Requires(pre):  redhawk
 
 
 %description
