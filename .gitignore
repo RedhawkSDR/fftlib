@@ -1,5 +1,4 @@
-fftlib.pc
-fftlib.spd.xml
+rh.fftlib.pc
 *.la
 *.lo
 *.o

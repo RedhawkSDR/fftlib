@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # This file is protected by Copyright. Please refer to the COPYRIGHT file distributed with this 
 # source distribution.
@@ -16,47 +15,54 @@
 # You should have received a copy of the GNU General Public License along with this 
 # program.  If not, see http://www.gnu.org/licenses/.
 #
+# By default, the RPM will install to the standard REDHAWK SDR root location (/var/redhawk/sdr)
 %{!?_sdrroot: %define _sdrroot /var/redhawk/sdr}
-%define _prefix %{_sdrroot}
+%define _prefix %{_sdrroot}/dom/deps/rh/fftlib
 
-Name:           fftlib
+# Point install paths to locations within our target SDR root
+%define _libdir        %{_prefix}/cpp/lib
+%define _sysconfdir    %{_prefix}/etc
+%define _localstatedir %{_prefix}/var
+%define _mandir        %{_prefix}/man
+%define _infodir       %{_prefix}/info
+
+Name:           rh.fftlib
 Version:        1.0.1
-Release:        2%{?dist}
-Summary:        Component Library %{name}
+Release:        1%{?dist}
+Summary:        Shared package %{name}
 
-Group:          REDHAWK/Components
+Group:          REDHAWK/Shared Packages
 License:        GPLv3+
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  autoconf automake libtool
-BuildRequires:  dsp-devel >= 1.0.0
+BuildRequires:  redhawk-devel >= 2.0
 BuildRequires:  fftw-devel >= 3
-Requires(pre):  redhawk
+BuildRequires:  autoconf automake libtool
 
+
+BuildRequires:  rh.dsp-devel >= 2.0
+Requires:       rh.dsp >= 2.0
 
 %description
-Component Library %{name}
+Shared package %{name}
  * Commit: __REVISION__
  * Source Date/Time: __DATETIME__
 
 %package devel
-Summary:        %{name} development package
-Group:          REDHAWK/Components
-Requires:       %{name} = %{version}
-Requires:       dsp-devel >= 1.0.0
+Summary:        Shared package %{name}
+Group:          REDHAWK/Shared Packages
+Requires:       %{name} = %{version}-%{release}
 Requires:       fftw-devel >= 3
 
 %description devel
-Development headers and libraries for %{name}
-
+Libraries and header files for shared package %{name}
 
 %prep
 %setup -q
 
 
 %build
-export SDRROOT=%{_sdrroot}
 # Implementation cpp
 pushd cpp
 ./reconf
@@ -79,14 +85,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,redhawk,redhawk,-)
-%dir %{_prefix}/dom/deps/%{name}
-%{_prefix}/dom/deps/%{name}/fftlib.spd.xml
-%{_prefix}/dom/deps/%{name}/cpp
-%exclude %{_prefix}/dom/deps/%{name}/cpp/include
-%exclude %{_prefix}/dom/deps/%{name}/cpp/lib/pkgconfig
+%dir %{_sdrroot}/dom/deps/rh
+%dir %{_sdrroot}/dom/deps/rh/fftlib
+%{_prefix}/fftlib.spd.xml
+%{_prefix}/cpp
+%exclude %{_libdir}/libfftlib.la
+%exclude %{_libdir}/libfftlib.so
+%exclude %{_libdir}/pkgconfig
 
 %files devel
 %defattr(-,redhawk,redhawk,-)
-%{_prefix}/dom/deps/%{name}/cpp/include
-%{_prefix}/dom/deps/%{name}/cpp/lib/pkgconfig
+%{_libdir}/libfftlib.la
+%{_libdir}/libfftlib.so
+%{_libdir}/pkgconfig
+%{_prefix}/include
 

@@ -1,0 +1,8 @@
+128fbfc41222017cbcc260238ed87d44  fftlib.pc.in
+305c464b5211c473d25a7e8ff998c717  src/fftlib.cpp
+c99df9fa4ab0cd042eac42fcee6441c3  reconf
+c4dbdd8d965e19bd49c62db32471f80e  include/fftlib.h
+6364ab08cfc4eac3b8b97844fe6af501  configure.ac
+d381d4fbf493f062dc372ece5e25b33b  Makefile.am
+6dc3533fdf2728baa4737ce2be121008  Makefile.am.ide
+b87651ea3565402473fb088004430fbf  build.sh
