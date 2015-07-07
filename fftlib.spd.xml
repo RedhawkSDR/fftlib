@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 program.  If not, see http://www.gnu.org/licenses/.
 -->
 <!DOCTYPE softpkg PUBLIC "-//JTRS//DTD SCA V2.2.2 SPD//EN" "softpkg.dtd">
-<softpkg id="DCE:a558b234-1183-454d-a70d-6a6302e2b66a" name="rh.fftlib" type="2.0.0" version="1.0.1">
+<softpkg id="DCE:a558b234-1183-454d-a70d-6a6302e2b66a" name="rh.fftlib" type="2.0.0" version="2.0.0">
   <author/>
   <description>basic-components signal processing library wrapping FFTW.  This provides a higher level functionality than what is contained in FFTW by providing classes for taking FFTs and their inverses and signal processing classes which leverage these FFT capabilities.</description>
   <implementation id="cpp">

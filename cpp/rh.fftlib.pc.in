@@ -24,6 +24,6 @@ includedir=@includedir@
 Name: rh.fftlib
 Description: basic-components signal processing library wrapping FFTW
 Requires: rh.dsp >= 2.0 fftw3 >= 3.0 fftw3f >= 3.0
-Version: 1.0.1
+Version: 2.0.0
 Libs: -L${libdir} -lfftlib -lfftw3 -lfftw3f
 Cflags: -I${includedir}
