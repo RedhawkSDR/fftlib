@@ -2,13 +2,13 @@
  * This file is protected by Copyright. Please refer to the COPYRIGHT file distributed with this
  * source distribution.
  *
- * This file is part of REDHAWK Basic Components fftlib library.
+ * This file is part of REDHAWK Basic Components rh.fftlib shared library.
  *
- * REDHAWK Basic Components fftlib library is free software: you can redistribute it and/or modify it under the terms of
+ * REDHAWK Basic Components rh.fftlib shared library is free software: you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation, either
  * version 3 of the License, or (at your option) any later version.
  *
- * REDHAWK Basic Components fftlib library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * REDHAWK Basic Components rh.fftlib shared library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  * PURPOSE.  See the GNU General Public License for more details.
  *
@@ -22,7 +22,7 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: rh.fftlib
-Description: basic-components signal processing library wrapping FFTW
+Description: basic-components signal processing shared library wrapping FFTW
 Requires: rh.dsp >= 2.0 fftw3 >= 3.0 fftw3f >= 3.0
 Version: 2.0.0
 Libs: -L${libdir} -lfftlib -lfftw3 -lfftw3f

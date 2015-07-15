@@ -1,8 +1,8 @@
-# REDHAWK Basic Components fftlib
+# REDHAWK Basic Components rh.fftlib
  
 ## Description
 
-Contains the source and build script for the REDHAWK Basic Components fftlib library
+Contains the source and build script for the REDHAWK Basic Components rh.fftlib shared library
  
 ## REDHAWK Documentation
 
@@ -18,6 +18,6 @@ This work is protected by Copyright. Please refer to the [Copyright File](COPYRI
 
 ## License
 
-REDHAWK Basic Components RedhawkDevUtils is licensed under the GNU General Public License (GPL).
+REDHAWK Basic Components rh.fftlib shared library is licensed under the GNU General Public License (GPL).
 
 

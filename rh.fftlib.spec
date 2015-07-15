@@ -2,13 +2,13 @@
 # This file is protected by Copyright. Please refer to the COPYRIGHT file distributed with this
 # source distribution.
 #
-# This file is part of REDHAWK Basic Components fftlib library.
+# This file is part of REDHAWK Basic Components rh.fftlib shared library.
 #
-# REDHAWK Basic Components fftlib library is free software: you can redistribute it and/or modify it under the terms of
+# REDHAWK Basic Components rh.fftlib shared library is free software: you can redistribute it and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# REDHAWK Basic Components fftlib library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# REDHAWK Basic Components rh.fftlib shared library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 # PURPOSE.  See the GNU General Public License for more details.
 #
@@ -29,9 +29,9 @@
 Name:           rh.fftlib
 Version:        2.0.0
 Release:        1%{?dist}
-Summary:        Shared package %{name}
+Summary:        REDHAWK shared library %{name}
 
-Group:          REDHAWK/Shared Packages
+Group:          REDHAWK/Shared Libraries
 License:        GPLv3+
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -45,18 +45,18 @@ BuildRequires:  rh.dsp-devel >= 2.0
 Requires:       rh.dsp >= 2.0
 
 %description
-Shared package %{name}
+REDHAWK shared library %{name}
  * Commit: __REVISION__
  * Source Date/Time: __DATETIME__
 
 %package devel
-Summary:        Shared package %{name}
-Group:          REDHAWK/Shared Packages
+Summary:        REDHAWK shared library %{name}
+Group:          REDHAWK/Shared Libraries
 Requires:       %{name} = %{version}-%{release}
 Requires:       fftw-devel >= 3
 
 %description devel
-Libraries and header files for shared package %{name}
+Libraries and header files for REDHAWK shared library %{name}
 
 %prep
 %setup -q
