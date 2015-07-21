@@ -40,9 +40,10 @@ BuildRequires:  redhawk-devel >= 2.0
 BuildRequires:  fftw-devel >= 3
 BuildRequires:  autoconf automake libtool
 
-
 BuildRequires:  rh.dsp-devel >= 2.0
 Requires:       rh.dsp >= 2.0
+
+Obsoletes:      fftlib < 2.0.0
 
 %description
 REDHAWK shared library %{name}
@@ -54,6 +55,7 @@ Summary:        REDHAWK shared library %{name}
 Group:          REDHAWK/Shared Libraries
 Requires:       %{name} = %{version}-%{release}
 Requires:       fftw-devel >= 3
+Obsoletes:      fftlib-devel < 2.0.0
 
 %description devel
 Libraries and header files for REDHAWK shared library %{name}
