@@ -27,7 +27,7 @@
 %define _infodir       %{_prefix}/info
 
 Name:           rh.fftlib
-Version:        2.0.0
+Version:        2.0.1
 Release:        1%{?dist}
 Summary:        REDHAWK shared library %{name}
 
