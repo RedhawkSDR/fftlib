@@ -28,7 +28,7 @@
 
 Name:           rh.fftlib
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        REDHAWK shared library %{name}
 
 Group:          REDHAWK/Shared Libraries
@@ -101,4 +101,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libfftlib.so
 %{_libdir}/pkgconfig
 %{_prefix}/include
+
+%changelog
+* Wed Jun 21 2017 Ryan Bauman - 2.0.0-2
+- Mass rebuild for REDHAWK 2.1.1
 
