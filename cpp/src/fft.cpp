@@ -17,9 +17,12 @@
  */
 
 #include "fft.h"
-
-#include "fft.h"
 #include <iostream>
+#include <boost/thread/mutex.hpp>
+
+namespace {
+    static boost::mutex plan_mutex;
+}
 
 //shift in frequency by multiplying in time by complex exponential
 //to freqSift by fs/2 for display purposes
@@ -45,16 +48,20 @@ Fft<TimeType>::Fft(TimeType& time, ComplexFFTWVector& frequency, size_t length, 
 template<typename TimeType>
 Fft<TimeType>::~Fft(void)
 {
-    if (plan_)
+    if (plan_) {
+        boost::mutex::scoped_lock lock(plan_mutex);
         fftwf_destroy_plan(*plan_);
+    }
     plan_=NULL;
 }
 
 template<typename TimeType>
 void Fft<TimeType>::createPlan()
 {
-    if (plan_)
+    if (plan_) {
+        boost::mutex::scoped_lock lock(plan_mutex);
         fftwf_destroy_plan(*plan_);
+    }
     //reserve data in case we are too small in time and frequency
     size_t timeSize=vTime_.size();
     if (timeSize < length_)
@@ -66,6 +73,8 @@ void Fft<TimeType>::createPlan()
     if (vFreq_.size()<numFreqPts)
         vFreq_.reserve(numFreqPts);
 
+    // TODO is lock required here? I don't think so. fftwf_plan is a fftwf_plan_s struct.
+    // Cannot tell if it's constructor or creation is thread-safe. Try without first.
     plan_ =new fftwf_plan;
     //save off these time pointers at plan creation time to be on the safe side
     timePtr_ = &vTime_[0];
@@ -188,12 +197,14 @@ template<>
 void FwdFft<RealFFTWVector>::planCmd()
 {
     //this should work but admitedly is a bit ghetto
+    boost::mutex::scoped_lock lock(plan_mutex);
     *plan_ =  fftwf_plan_dft_r2c_1d(length_, &vTime_[0], reinterpret_cast<fftwf_complex*>(&vFreq_[0]), FFTW_ESTIMATE);
 }
 
 template<>
 void FwdFft<ComplexFFTWVector>::planCmd()
 {
+    boost::mutex::scoped_lock lock(plan_mutex);
     *plan_ =  fftwf_plan_dft_1d(length_, reinterpret_cast<fftwf_complex*>(&vTime_[0]), reinterpret_cast<fftwf_complex*>(&vFreq_[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 }
 
@@ -245,12 +256,14 @@ void RevFft<TimeType>::planCmd()
 template<>
 void RevFft<RealFFTWVector>::planCmd()
 {
+    boost::mutex::scoped_lock lock(plan_mutex);
     *plan_ =  fftwf_plan_dft_c2r_1d(length_, reinterpret_cast<fftwf_complex*>(&vFreq_[0]), &vTime_[0], FFTW_ESTIMATE);
 }
 
 template<>
 void RevFft<ComplexFFTWVector>::planCmd()
 {
+    boost::mutex::scoped_lock lock(plan_mutex);
     *plan_ =  fftwf_plan_dft_1d(length_, reinterpret_cast<fftwf_complex*>(&vFreq_[0]), reinterpret_cast<fftwf_complex*>(&vTime_[0]), FFTW_BACKWARD, FFTW_ESTIMATE);
 }
 
