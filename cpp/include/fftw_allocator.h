@@ -32,22 +32,22 @@
    {
 
    public:
-	   //only allow allocator to be made for float and complex<float> types
-	   fftwf_allocator()
-	   {
-		   throw "fftwf_allocator bad type - must be float or complex<float> only";
-	   }
+       //only allow allocator to be made for float and complex<float> types
+       fftwf_allocator()
+       {
+           throw "fftwf_allocator bad type - must be float or complex<float> only";
+       }
 
-	   typedef typename std::allocator<Tp>::size_type size_type;
-	   typedef typename std::allocator<Tp>::difference_type difference_type;
-	   typedef typename std::allocator<Tp>::pointer pointer;
+       typedef typename std::allocator<Tp>::size_type size_type;
+       typedef typename std::allocator<Tp>::difference_type difference_type;
+       typedef typename std::allocator<Tp>::pointer pointer;
        typedef typename std::allocator<Tp>::const_pointer const_pointer;
        typedef typename std::allocator<Tp>::reference reference;
        typedef typename std::allocator<Tp>::const_reference const_reference;
        typedef Tp value_type;
 
       pointer allocate(size_type n, const void* = 0)
-      {	return static_cast<Tp*>( fftwf_malloc(n * sizeof(Tp))); }
+      {    return static_cast<Tp*>( fftwf_malloc(n * sizeof(Tp))); }
 
       void deallocate(pointer p, size_type) {  fftwf_free(p); }
 

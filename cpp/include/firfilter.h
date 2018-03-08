@@ -26,91 +26,91 @@
 template<typename T>
 void printVec(T vec)
 {
-	for (unsigned int i=0; i!=vec.size(); i++)
-		std::cout<<vec[i]<<",";
-	std::cout<<std::endl;
+    for (unsigned int i=0; i!=vec.size(); i++)
+        std::cout<<vec[i]<<",";
+    std::cout<<std::endl;
 };
 
 size_t getMaxTapsSize(size_t fftSize);
 
 class firfilter {
-	//This fir filter implementation uses the
+    //This fir filter implementation uses the
 public:
 
-	typedef std::vector<float> realVector;
-	typedef std::vector<std::complex<float> > complexVector;
+    typedef std::vector<float> realVector;
+    typedef std::vector<std::complex<float> > complexVector;
 
-	firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput);
-	template<typename T>
-	firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput, T& taps);
-	virtual ~firfilter();
+    firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput);
+    template<typename T>
+    firfilter(size_t fftSize, realVector& realOutput, complexVector& complexOutput, T& taps);
+    virtual ~firfilter();
 
-	void setTaps(RealFFTWVector& taps);
-	void setTaps(ComplexFFTWVector& taps);
+    void setTaps(RealFFTWVector& taps);
+    void setTaps(ComplexFFTWVector& taps);
 
-	void setFftSize(size_t val);
-	size_t getMaxTaps();
-	size_t getNumTaps();
+    void setFftSize(size_t val);
+    size_t getMaxTaps();
+    size_t getNumTaps();
 
-	void newRealData(realVector& realInput);
-	void newComplexData(complexVector& complexInput);
-	void flush();
+    void newRealData(realVector& realInput);
+    void newComplexData(complexVector& complexInput);
+    void flush();
 
 private:
 
-	void mirror(ComplexFFTWVector& vector);
-	void applyFilter();
-	void doComplexIfft(complexVector::iterator& output);
-	void doRealIfft(realVector::iterator& realOut, complexVector::iterator& complexOut);
-	void updateInternals();
+    void mirror(ComplexFFTWVector& vector);
+    void applyFilter();
+    void doComplexIfft(complexVector::iterator& output);
+    void doRealIfft(realVector::iterator& realOut, complexVector::iterator& complexOut);
+    void updateInternals();
 
-	//inputs and outputs for the class
-	realVector& realOutput_;
-	complexVector& complexOutput_;
+    //inputs and outputs for the class
+    realVector& realOutput_;
+    complexVector& complexOutput_;
 
 
-	//inputs for the fft
-	RealFFTWVector realInputFftIn_;
-	ComplexFFTWVector complexInputFftIn_;
+    //inputs for the fft
+    RealFFTWVector realInputFftIn_;
+    ComplexFFTWVector complexInputFftIn_;
 
-	//frequency domain  working vector
-	ComplexFFTWVector freqDomainData_;
+    //frequency domain  working vector
+    ComplexFFTWVector freqDomainData_;
 
-	//outputs for the output fft
-	RealFFTWVector realOutputFftOut_;
-	ComplexFFTWVector complexOutputFftOut_;
+    //outputs for the output fft
+    RealFFTWVector realOutputFftOut_;
+    ComplexFFTWVector complexOutputFftOut_;
 
-	//last data vectors
-	realVector realOverlap_;
-	complexVector complexOverlap_;
+    //last data vectors
+    realVector realOverlap_;
+    complexVector complexOverlap_;
 
-	//frequency domain filter
-	ComplexFFTWVector tapsFreq_;
-	//time domain cash of the taps
-	//need to store them off in case the fftsize changes on us
-	RealFFTWVector realTaps_;
-	ComplexFFTWVector complexTaps_;
+    //frequency domain filter
+    ComplexFFTWVector tapsFreq_;
+    //time domain cash of the taps
+    //need to store them off in case the fftsize changes on us
+    RealFFTWVector realTaps_;
+    ComplexFFTWVector complexTaps_;
 
-	//foward fft
-	RealFwdFft realInputFft_;
-	ComplexFwdFft complexInputFft_;
+    //foward fft
+    RealFwdFft realInputFft_;
+    ComplexFwdFft complexInputFft_;
 
-	//reverse fft
-	RealRevFft realOutputFft_;
-	ComplexRevFft complexOutputFft_;
+    //reverse fft
+    RealRevFft realOutputFft_;
+    ComplexRevFft complexOutputFft_;
 
-	//frame buffers
-	framebuffer<realVector::iterator> realFramer_;
-	framebuffer<complexVector::iterator> complexFramer_;
+    //frame buffers
+    framebuffer<realVector::iterator> realFramer_;
+    framebuffer<complexVector::iterator> complexFramer_;
 
-	std::vector<framebuffer<realVector::iterator>::frame> realFrames_;
-	std::vector<framebuffer<complexVector::iterator>::frame> complexFrames_;
+    std::vector<framebuffer<realVector::iterator>::frame> realFrames_;
+    std::vector<framebuffer<complexVector::iterator>::frame> complexFrames_;
 
-	size_t fftSize_;
-	size_t numTaps_;
-	size_t frameSize_;
+    size_t fftSize_;
+    size_t numTaps_;
+    size_t frameSize_;
 
-	boost::mutex boostLock_;
+    boost::mutex boostLock_;
 
 };
 

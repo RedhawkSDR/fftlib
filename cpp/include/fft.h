@@ -26,72 +26,72 @@
 template<typename TimeType>
 class Fft
 {
-	public:
-		// Constructor
-		Fft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
-		virtual ~Fft(void);
+    public:
+        // Constructor
+        Fft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
+        virtual ~Fft(void);
         virtual void createPlan();
-	    virtual void run(void);
-	    void setLength(size_t length);
-	    size_t getLength();
-	    size_t getNumBytesInput();
-	    size_t getNumBytesOutput();
-		virtual size_t getFreqPoints();
+        virtual void run(void);
+        void setLength(size_t length);
+        size_t getLength();
+        size_t getNumBytesInput();
+        size_t getNumBytesOutput();
+        virtual size_t getFreqPoints();
 
-	protected:
+    protected:
 
 
         virtual void planCmd()=0;
 
-		fftwf_plan* plan_;
-	    size_t length_;
-	    ComplexFFTWVector  &vFreq_;
-	    TimeType &vTime_;
-	    void* timePtr_;
-	    void* freqPtr_;
-	    bool wrapComplex_;
+        fftwf_plan* plan_;
+        size_t length_;
+        ComplexFFTWVector  &vFreq_;
+        TimeType &vTime_;
+        void* timePtr_;
+        void* freqPtr_;
+        bool wrapComplex_;
 
 };
 
 template<typename TimeType>
 class FwdFft : public Fft<TimeType>
 {
-	public:
+    public:
 
-	// Constructor
-	FwdFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
-		virtual ~FwdFft(void) {};
-		virtual void run(void);
+    // Constructor
+    FwdFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
+        virtual ~FwdFft(void) {};
+        virtual void run(void);
 
     protected:
-		void run_(void);
-		void planCmd();
+        void run_(void);
+        void planCmd();
 };
 
 template<typename TimeType>
 class RevFft : public Fft<TimeType>
 {
-	public:
+    public:
 
-		// Constructor
-		RevFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
-		virtual ~RevFft(void) {};
-		virtual void run(void);
+        // Constructor
+        RevFft(TimeType& time, ComplexFFTWVector& frequency, size_t length, bool wrapComplex);
+        virtual ~RevFft(void) {};
+        virtual void run(void);
 
     protected:
-		void run_(void);
-		void planCmd();
+        void run_(void);
+        void planCmd();
 };
 
 template<typename TimeType>
 class Psd : public FwdFft<TimeType>
 {
-	public:
-		Psd(TimeType &time, RealFFTWVector &psd, ComplexFFTWVector& fft, size_t length, bool wrapComplex);
-		virtual ~Psd(void) {};
-		void run(void);
-	protected:
-	    RealFFTWVector &vpsd_;
+    public:
+        Psd(TimeType &time, RealFFTWVector &psd, ComplexFFTWVector& fft, size_t length, bool wrapComplex);
+        virtual ~Psd(void) {};
+        void run(void);
+    protected:
+        RealFFTWVector &vpsd_;
 };
 
 
