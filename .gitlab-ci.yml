@@ -1,5 +1,5 @@
 variables:
-  rh_20_release: '2.0.7'
+  rh_20_release: '2.0.8'
   rh_21_release: '2.1.2'
   namespace: rh.
 
@@ -112,3 +112,20 @@ deploy:
   #Skip on tag of following format
   except:
     - /^(\d+\.)?(\d+)?(\.\d+)$/
+
+abi-check:
+  image: ${docker_registry}redhawk/buildenv:2.1-el7
+  stage: test
+  dependencies:
+    - package:el7:rh2.1
+  variables:
+    last_release: '2.0.0-3'
+  script:
+    - set -x
+    - ls -l output/x86_64
+    - curl -fsSL $yum_repo_url/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$last_release/rh2.1/el7/x86_64/$namespace$CI_PROJECT_NAME-$last_release.rh2.1.el7.centos.x86_64.rpm > $namespace$CI_PROJECT_NAME-$last_release.rh2.1.el7.centos.x86_64.rpm
+    - curl -fsSL $yum_repo_url/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/$last_release/rh2.1/el7/x86_64/$namespace$CI_PROJECT_NAME-debuginfo-$last_release.rh2.1.el7.centos.x86_64.rpm > $namespace$CI_PROJECT_NAME-debuginfo-$last_release.rh2.1.el7.centos.x86_64.rpm
+    - abipkgdiff --debug-info-pkg1 $namespace$CI_PROJECT_NAME-debuginfo-$last_release.rh2.1.el7.centos.x86_64.rpm
+                 --debug-info-pkg2 `find output -name '*-debuginfo*.rpm'`
+                 $namespace$CI_PROJECT_NAME-$last_release.rh2.1.el7.centos.x86_64.rpm
+                 output/x86_64/$namespace$CI_PROJECT_NAME-2*.rpm
