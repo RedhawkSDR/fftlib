@@ -3,6 +3,12 @@ variables:
   rh_21_release: '2.1.3'
   namespace: rh.
 
+stages:
+  - build
+  - test
+  - deploy
+  - trigger
+
 #Global before script, determine if this is a tag and handle rpm release field accordingly
 before_script:
     - safe_version=$(echo ${short_version} | tr -d -)
@@ -135,3 +141,10 @@ abi-check:
                  --devel-pkg2 output/x86_64/$namespace$CI_PROJECT_NAME-devel*.rpm
                  $namespace$CI_PROJECT_NAME-$last_release.rh2.1.el7.centos.x86_64.rpm
                  output/x86_64/$namespace$CI_PROJECT_NAME-2*.rpm
+
+trigger:
+  image: ${docker_registry}${trigger_repo}trigger:latest
+  stage: trigger
+  dependencies: []
+  script:
+    - gitlab-ci-trigger --file ${dependencies_url}
