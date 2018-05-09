@@ -55,6 +55,7 @@ Summary:        REDHAWK shared library %{name}
 Group:          REDHAWK/Shared Libraries
 Requires:       %{name} = %{version}-%{release}
 Requires:       fftw-devel >= 3
+Requires:       rh.dsp-devel >= 2.0
 Obsoletes:      fftlib-devel < 2.0.0
 
 %description devel
