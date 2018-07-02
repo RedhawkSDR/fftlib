@@ -24,74 +24,44 @@
 #include <boost/thread/once.hpp>
 #include <boost/scoped_ptr.hpp>
 
-
-class FftwThreadCoordinator {
-public:
-	FftwThreadCoordinator () {
-		_fftw_cleanup();
-	}
-	~FftwThreadCoordinator () {
-		_fftw_cleanup();
-	}
-	boost::mutex& getPlanMutex() {
-		return plan_mutex;
-	}
-private:
-	void _fftw_cleanup() {
-		boost::mutex::scoped_lock lock(plan_mutex);
-		::fftw_cleanup();
-	}
-	boost::mutex plan_mutex;
-};
-
-class FftwfThreadCoordinator {
-public:
-	FftwfThreadCoordinator () {
-		_fftwf_cleanup();
-	}
-	~FftwfThreadCoordinator () {
-		_fftwf_cleanup();
-	}
-	boost::mutex& getPlanMutex() {
-		return plan_mutex;
-	}
-private:
-	void _fftwf_cleanup() {
-		boost::mutex::scoped_lock lock(plan_mutex);
-		::fftwf_cleanup();
-	}
-	boost::mutex plan_mutex;
-};
-
-
-namespace fftwf_thread_coordinator {
-	namespace {
-		static boost::once_flag coordinatorInit = BOOST_ONCE_INIT;
-		static boost::scoped_ptr<FftwfThreadCoordinator> coordinatorInstance(0);
-		static void initializeCoordinator() {
-			FftwfThreadCoordinator* coord = new FftwfThreadCoordinator();
-			coordinatorInstance.reset(coord);
-		}
-		FftwfThreadCoordinator* getCoordinator() {
-			boost::call_once(coordinatorInit, &initializeCoordinator);
-			return coordinatorInstance.get();
-		}
-    }
-}
+/** Prevent thread safety issues with fftw
+ *  Use fftw_thread_coordinator::getCoordinator() for fftw
+ *  Use fftwf_thread_coordinator::getCoordinator() for fftwf
+ *  Lock the boost::mutex provided by coord->getPlanMutex() prior to calling fftw plan methods
+ */
 
 namespace fftw_thread_coordinator {
-    namespace {
-		static boost::once_flag coordinatorInit = BOOST_ONCE_INIT;
-		static boost::scoped_ptr<FftwThreadCoordinator> coordinatorInstance(0);
-		static void initializeCoordinator() {
-			FftwThreadCoordinator* coord = new FftwThreadCoordinator();
-			coordinatorInstance.reset(coord);
-		}
-		FftwThreadCoordinator* getCoordinator() {
-			boost::call_once(coordinatorInit, &initializeCoordinator);
-			return coordinatorInstance.get();
-		}
-    }
-}
+    class FftwThreadCoordinator;
+    FftwThreadCoordinator* getCoordinator ();
+
+    // FftwThreadCoordinator definition
+    class FftwThreadCoordinator {
+        friend FftwThreadCoordinator* getCoordinator();
+    public:
+        ~FftwThreadCoordinator ();
+        boost::mutex& getPlanMutex ();
+    private:
+        static void _create_instance ();
+        FftwThreadCoordinator ();
+        boost::mutex plan_mutex;
+    }; // end FftwThreadCoordinator class
+} // end fftw_thread_coordinator namespace
+
+namespace fftwf_thread_coordinator {
+    class FftwfThreadCoordinator;
+    FftwfThreadCoordinator* getCoordinator ();
+
+    // FftwfThreadCoordinator definition
+    class FftwfThreadCoordinator {
+        friend FftwfThreadCoordinator* getCoordinator();
+    public:
+        ~FftwfThreadCoordinator ();
+        boost::mutex& getPlanMutex ();
+    private:
+        static void _create_instance ();
+        FftwfThreadCoordinator ();
+        boost::mutex plan_mutex;
+    }; // end FftwfThreadCoordinator class
+} // end fftwf_thread_coordinator namespace
 
 #endif /* FFTW_THREAD_COORDINATOR_H_ */

@@ -9,6 +9,7 @@ redhawk_SOURCES_auto += include/fft.h
 redhawk_SOURCES_auto += include/fftw_allocator.h
 redhawk_SOURCES_auto += include/firfilter.h
 redhawk_SOURCES_auto += src/Autocorrelate.cpp
+redhawk_SOURCES_auto += src/FftwThreadCoordinator.cpp
 redhawk_SOURCES_auto += src/fft.cpp
 redhawk_SOURCES_auto += src/firfilter.cpp
 redhawk_INCLUDES_auto = -I/var/redhawk/sdr/dom/deps/rh/dsp/include
