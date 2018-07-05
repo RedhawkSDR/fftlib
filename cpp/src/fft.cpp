@@ -21,7 +21,6 @@
 #include <iostream>
 #include <boost/thread/mutex.hpp>
 
-using namespace fftwf_thread_coordinator;
 
 //shift in frequency by multiplying in time by complex exponential
 //to freqSift by fs/2 for display purposes
@@ -48,7 +47,7 @@ template<typename TimeType>
 Fft<TimeType>::~Fft(void)
 {
     if (plan_) {
-        boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+        boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
         fftwf_destroy_plan(*plan_);
     }
     plan_=NULL;
@@ -58,7 +57,7 @@ template<typename TimeType>
 void Fft<TimeType>::createPlan()
 {
     if (plan_) {
-        boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+        boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
         fftwf_destroy_plan(*plan_);
     }
     //reserve data in case we are too small in time and frequency
@@ -195,7 +194,7 @@ void FwdFft<TimeType>::planCmd()
 template<>
 void FwdFft<RealFFTWVector>::planCmd()
 {
-    boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+    boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
     //this should work but admitedly is a bit ghetto
     *plan_ =  fftwf_plan_dft_r2c_1d(length_, &vTime_[0], reinterpret_cast<fftwf_complex*>(&vFreq_[0]), FFTW_ESTIMATE);
 }
@@ -203,7 +202,7 @@ void FwdFft<RealFFTWVector>::planCmd()
 template<>
 void FwdFft<ComplexFFTWVector>::planCmd()
 {
-    boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+    boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
     *plan_ =  fftwf_plan_dft_1d(length_, reinterpret_cast<fftwf_complex*>(&vTime_[0]), reinterpret_cast<fftwf_complex*>(&vFreq_[0]), FFTW_FORWARD, FFTW_ESTIMATE);
 }
 
@@ -255,14 +254,14 @@ void RevFft<TimeType>::planCmd()
 template<>
 void RevFft<RealFFTWVector>::planCmd()
 {
-    boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+    boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
     *plan_ =  fftwf_plan_dft_c2r_1d(length_, reinterpret_cast<fftwf_complex*>(&vFreq_[0]), &vTime_[0], FFTW_ESTIMATE);
 }
 
 template<>
 void RevFft<ComplexFFTWVector>::planCmd()
 {
-    boost::mutex::scoped_lock lock(getCoordinator()->getPlanMutex());
+    boost::mutex::scoped_lock lock(getFftwfCoordinator()->getPlanMutex());
     *plan_ =  fftwf_plan_dft_1d(length_, reinterpret_cast<fftwf_complex*>(&vFreq_[0]), reinterpret_cast<fftwf_complex*>(&vTime_[0]), FFTW_BACKWARD, FFTW_ESTIMATE);
 }
 

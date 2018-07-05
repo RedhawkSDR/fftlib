@@ -25,43 +25,42 @@
 #include <boost/scoped_ptr.hpp>
 
 /** Prevent thread safety issues with fftw
- *  Use fftw_thread_coordinator::getCoordinator() for fftw
- *  Use fftwf_thread_coordinator::getCoordinator() for fftwf
+ *  Use getFftwCoordinator() for fftw
+ *  Use getFftwfCoordinator() for fftwf
  *  Lock the boost::mutex provided by coord->getPlanMutex() prior to calling fftw plan methods
  */
 
-namespace fftw_thread_coordinator {
-    class FftwThreadCoordinator;
-    FftwThreadCoordinator* getCoordinator ();
+// Forward declarations
+class FftwThreadCoordinator;
+class FftwfThreadCoordinator;
 
-    // FftwThreadCoordinator definition
-    class FftwThreadCoordinator {
-        friend FftwThreadCoordinator* getCoordinator();
-    public:
-        ~FftwThreadCoordinator ();
-        boost::mutex& getPlanMutex ();
-    private:
-        static void _create_instance ();
-        FftwThreadCoordinator ();
-        boost::mutex plan_mutex;
-    }; // end FftwThreadCoordinator class
-} // end fftw_thread_coordinator namespace
+// Methods to get thread coordinator instance
+FftwThreadCoordinator*  getFftwCoordinator ();
+FftwfThreadCoordinator* getFftwfCoordinator ();
 
-namespace fftwf_thread_coordinator {
-    class FftwfThreadCoordinator;
-    FftwfThreadCoordinator* getCoordinator ();
+// FftwThreadCoordinator definition
+class FftwThreadCoordinator {
+    friend FftwThreadCoordinator* getFftwCoordinator();
+public:
+    ~FftwThreadCoordinator ();
+    boost::mutex& getPlanMutex ();
+private:
+    static void _create_instance ();
+    FftwThreadCoordinator ();
+    boost::mutex plan_mutex;
+}; // end FftwThreadCoordinator class
 
-    // FftwfThreadCoordinator definition
-    class FftwfThreadCoordinator {
-        friend FftwfThreadCoordinator* getCoordinator();
-    public:
-        ~FftwfThreadCoordinator ();
-        boost::mutex& getPlanMutex ();
-    private:
-        static void _create_instance ();
-        FftwfThreadCoordinator ();
-        boost::mutex plan_mutex;
-    }; // end FftwfThreadCoordinator class
-} // end fftwf_thread_coordinator namespace
+
+// FftwfThreadCoordinator definition
+class FftwfThreadCoordinator {
+    friend FftwfThreadCoordinator* getFftwfCoordinator();
+public:
+    ~FftwfThreadCoordinator ();
+    boost::mutex& getPlanMutex ();
+private:
+    static void _create_instance ();
+    FftwfThreadCoordinator ();
+    boost::mutex plan_mutex;
+}; // end FftwfThreadCoordinator class
 
 #endif /* FFTW_THREAD_COORDINATOR_H_ */

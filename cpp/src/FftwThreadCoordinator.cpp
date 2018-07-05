@@ -18,55 +18,51 @@
 
 #include "FftwThreadCoordinator.h"
 
-namespace fftw_thread_coordinator {
-    namespace {
-        static boost::once_flag coordinatorInit = BOOST_ONCE_INIT;
-        static boost::scoped_ptr<FftwThreadCoordinator> coordinatorInstance(0);
-    } // end anon namespace
-    FftwThreadCoordinator* getCoordinator () {
-        boost::call_once(coordinatorInit, &FftwThreadCoordinator::_create_instance);
-        return coordinatorInstance.get();
-    }
-    // FftwThreadCoordinator implementation
-    void FftwThreadCoordinator::_create_instance () {
-        coordinatorInstance.reset(new FftwThreadCoordinator());
-    }
-    FftwThreadCoordinator::FftwThreadCoordinator () {
-        boost::mutex::scoped_lock lock(plan_mutex);
-        ::fftw_cleanup();
-    }
-    FftwThreadCoordinator::~FftwThreadCoordinator () {
-        boost::mutex::scoped_lock lock(plan_mutex);
-        ::fftw_cleanup();
-    }
-    boost::mutex& FftwThreadCoordinator::getPlanMutex () {
-        return plan_mutex;
-    }
-} // end fftw_thread_coordinator namespace
+namespace {
+    static boost::once_flag fftw_coordinator_init  = BOOST_ONCE_INIT;
+    static boost::once_flag fftwf_coordinator_init = BOOST_ONCE_INIT;
+    static boost::scoped_ptr<FftwThreadCoordinator>  fftw_coordinator_inst(0);
+    static boost::scoped_ptr<FftwfThreadCoordinator> fftwf_coordinator_inst(0);
+} // end anon namespace
 
-namespace fftwf_thread_coordinator {
-    namespace {
-        static boost::once_flag coordinatorInit = BOOST_ONCE_INIT;
-        static boost::scoped_ptr<FftwfThreadCoordinator> coordinatorInstance(0);
-    } // end anon namespace
-    FftwfThreadCoordinator* getCoordinator () {
-        boost::call_once(coordinatorInit, &FftwfThreadCoordinator::_create_instance);
-        return coordinatorInstance.get();
-    }
-    // FftwfThreadCoordinator implementation
-    void FftwfThreadCoordinator::_create_instance () {
-        coordinatorInstance.reset(new FftwfThreadCoordinator());
-    }
-    FftwfThreadCoordinator::FftwfThreadCoordinator () {
-        boost::mutex::scoped_lock lock(plan_mutex);
-        ::fftwf_cleanup();
-    }
-    FftwfThreadCoordinator::~FftwfThreadCoordinator () {
-        boost::mutex::scoped_lock lock(plan_mutex);
-        ::fftwf_cleanup();
-    }
-    boost::mutex& FftwfThreadCoordinator::getPlanMutex () {
-        return plan_mutex;
-    }
-} // end fftwf_thread_coordinator namespace
+FftwThreadCoordinator* getFftwCoordinator () {
+    boost::call_once(fftw_coordinator_init, &FftwThreadCoordinator::_create_instance);
+    return fftw_coordinator_inst.get();
+}
+FftwfThreadCoordinator* getFftwfCoordinator () {
+    boost::call_once(fftwf_coordinator_init, &FftwfThreadCoordinator::_create_instance);
+    return fftwf_coordinator_inst.get();
+}
+
+// FftwThreadCoordinator implementation
+void FftwThreadCoordinator::_create_instance () {
+    fftw_coordinator_inst.reset(new FftwThreadCoordinator());
+}
+FftwThreadCoordinator::FftwThreadCoordinator () {
+    boost::mutex::scoped_lock lock(plan_mutex);
+    ::fftw_cleanup();
+}
+FftwThreadCoordinator::~FftwThreadCoordinator () {
+    boost::mutex::scoped_lock lock(plan_mutex);
+    ::fftw_cleanup();
+}
+boost::mutex& FftwThreadCoordinator::getPlanMutex () {
+    return plan_mutex;
+}
+
+// FftwfThreadCoordinator implementation
+void FftwfThreadCoordinator::_create_instance () {
+    fftwf_coordinator_inst.reset(new FftwfThreadCoordinator());
+}
+FftwfThreadCoordinator::FftwfThreadCoordinator () {
+    boost::mutex::scoped_lock lock(plan_mutex);
+    ::fftwf_cleanup();
+}
+FftwfThreadCoordinator::~FftwfThreadCoordinator () {
+    boost::mutex::scoped_lock lock(plan_mutex);
+    ::fftwf_cleanup();
+}
+boost::mutex& FftwfThreadCoordinator::getPlanMutex () {
+    return plan_mutex;
+}
 
