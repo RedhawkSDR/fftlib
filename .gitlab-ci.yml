@@ -10,8 +10,13 @@ stages:
   - deploy
   - trigger
 
-#Global before script, determine if this is a tag and handle rpm release field accordingly
-before_script:
+.package: &package
+  image: ${docker_registry}${docker_rpm_repository}docker:latest-rpm
+  stage: build
+  tags:
+    - ca
+    - docker
+  before_script:
     - safe_version=$(echo ${short_version} | tr -d -)
     - safe_ref=$(echo ${CI_COMMIT_REF_NAME} | tr -d /| tr '[:upper:]' '[:lower:]')
     - if [ -z "$CI_COMMIT_TAG" ]; then
@@ -25,13 +30,6 @@ before_script:
       fi
     - redhawk_repo=$yum_repo_url/redhawk-core-framework/$redhawk_version/$dist/$arch
     - dsp_repo=$s3_repo_url/redhawk-sharedlibs/dsp/yum/$dsp_version/rh${safe_version}/$dist/$arch
-
-.package: &package
-  image: ${docker_registry}${docker_rpm_repository}docker:latest-rpm
-  stage: build
-  tags:
-    - ca
-    - docker
   script:
     - printf "FROM ${docker_registry}${rpmbuild_repository}rpmbuild:$dist-$arch-onbuild" > Dockerfile
     - docker login ${docker_registry} -u ${docker_user} -p ${docker_password}
@@ -181,10 +179,9 @@ deploy:
   image: ${docker_registry}centos:7
   stage: deploy
   dependencies: []
-  before_script:
-    - echo "Deploying to $jenkins_url/job/$CI_PROJECT_NAMESPACE/job/$CI_PROJECT_NAME-$CI_COMMIT_REF_NAME"
   script:
     - if [ -n "$jenkins_url" ]; then
+        echo "Deploying to $jenkins_url/job/$CI_PROJECT_NAMESPACE/job/$CI_PROJECT_NAME-$CI_COMMIT_REF_NAME"
         curl --insecure -X POST $jenkins_url/job/$CI_PROJECT_NAMESPACE/job/$CI_PROJECT_NAME-$CI_COMMIT_REF_NAME/buildWithParameters?pipeline_id=$CI_PIPELINE_ID --user $jenkins_user:$jenkins_api_token;
       fi
   except:
@@ -216,8 +213,6 @@ trigger:
   image: ${docker_registry}${trigger_repo}trigger:latest
   stage: trigger
   dependencies: []
-  before_script:
-    - echo "Do not run global before script" > /dev/null
   script:
     - gitlab-ci-trigger --file ${dependencies_url}
   allow_failure: true
