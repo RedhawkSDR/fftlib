@@ -215,4 +215,6 @@ trigger:
   dependencies: []
   script:
     - gitlab-ci-trigger --file ${dependencies_url}
+  only:
+    - branches
   allow_failure: true
